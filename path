@@ -10,4 +10,6 @@ if stest -dqr -n "$cache" $PATH; then
 	stest -flx $PATH | sort -u | tee "$cache"
 else
 	cat "$cache"
+    # /usr/sbin/ls -1 /usr/share/applications/
+    # /usr/sbin/ls -1 ~/.local/share/applications/
 fi
