@@ -1,6 +1,6 @@
 
 #include "raylib.h"
-#include "launcher.h"
+#include "windows.h"
 
 
 int main() {
@@ -9,9 +9,6 @@ int main() {
         launcher_update();
     }
 
-    cleanup_remaining_bits();
-    CloseWindow();
+    launcher_cleanup();
     return 0;
 }
-
-
