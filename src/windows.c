@@ -100,7 +100,10 @@ void launcher_update(void) {
     DrawFPS(launcher->width - 50, 20);
     EndDrawing();
 
-    bool close_window_trigger = IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+    // since the selection handles the launcher->selected_index well
+    // i didnot have to handle the selected index manually
+    // in the draw loop. so there isnt any issue similar to mouse click
+    bool close_window_trigger = IsKeyPressed(KEY_ENTER) || launcher->mouse_click_item;
     if (close_window_trigger) {
         puts(table[launcher->selected_index]);
         fflush(stdout);
@@ -113,6 +116,7 @@ void draw_contents() {
     int line_height = launcher->font.baseSize + margin;
     Vector2 mouse_position = GetMousePosition();
     int y = margin;
+    launcher->mouse_click_item = false;
 
     for (int i = 0; i < launcher->item_count; i++) {
         if (y + line_height > launcher->height) break;
@@ -143,8 +147,10 @@ void draw_contents() {
 
         y += line_height;
 
-        if (!is_hovered && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            continue;
+        if (is_hovered && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            launcher->selected_index = i;
+            launcher->mouse_click_item = true;
+            break;
         }
     }
 }

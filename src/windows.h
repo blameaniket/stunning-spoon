@@ -14,13 +14,26 @@ typedef struct {
     Color selection_fg;
 
     // selection and scrolling part
+    int item_count;
     int selected_index;
     int scroll_offset;
     float repeat_timer;
     int repeat_key;
+
+    // add mouse state
+    bool mouse_click_item;
 } Launcher;
 static Launcher *launcher = NULL;
 
+
+static char *table[] = {
+    "hello world 1",
+    "hello world 2",
+    "hello world 3",
+    "hello world 4",
+    "hello world 5",
+    "hello world 6",
+};
 
 void launcher_init();
 bool window_should_close();
