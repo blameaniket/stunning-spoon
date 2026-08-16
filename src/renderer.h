@@ -3,11 +3,10 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "launcher.h"
+#include "color.h"
 
 
-void renderer_init(LauncherContext launcher_ctx);
-
+void clear_color(Color color);
 
 
 #endif // RENDERER_H

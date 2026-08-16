@@ -2,13 +2,13 @@
 
 #include <glad/glad.h>
 #include <stdio.h>
-#include <X11/Xlib.h>
 #include <string.h>
 
+#include "color.h"
 #include "launcher.h"
-#include "renderer.h"
 #include "window.h"
 #include "log.h"
+
 
 
 int main(int argc, char *argv[]) {
@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
             .width = 800,
             .height = 600,
             .title = "stunning spoon",
+            .background_color = hex_to_rgb("#282828"),
         },
     };
 
@@ -51,18 +52,13 @@ int main(int argc, char *argv[]) {
     log_debug("initializing window...\n");
     window_init(launcher.window.width, launcher.window.height, launcher.window.title);
     launcher_init(&launcher);
-    renderer_init(get_launcher_context(&launcher));
 
     log_debug("window is initialized\n\n");
 
 
     log_debug("opening window ...\n\n");
     while (!window_should_close()) {
-        glClearColor(1, 1, 1, 1);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        window_swap_buffers();
-        window_poll_events();
+        launcher_update();
     }
 
 

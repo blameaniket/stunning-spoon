@@ -8,9 +8,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_executable(app
     src/main.c
-    src/window.c
     src/launcher.c
+    src/window.c
+    src/renderer.c
     src/log.c
+    src/color.c
     external/glad/src/glad.c
 )
 
