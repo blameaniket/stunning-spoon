@@ -2,10 +2,17 @@
 
 # Build instructions
 
+### Required dependencies
 - `git` for cloning this repository
-- working gpu drivers because this uses opengl which is based on gpu
-- `glfw` needs to be installed
-- `cmake` for building this project
+- `gl.h` which is available in your GPU drivers, and also `glfw` needs to be installed (dependencies)
+- `cmake` for building this project.
+- `nvim` or `vim`, your favourite text editor.
 
 
-
+### Compilation guide
+```bash
+git clone git@github.com:blameaniket/stunning-spoon.git
+cd <directory>
+mkdir build && cd build/ && cmake .. && cd ..
+cmake --build build
+```
