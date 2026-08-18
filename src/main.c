@@ -12,11 +12,12 @@ int main(int argc, char *argv[]) {
     struct Launcher launcher = {
         .window = {
             .width = 800,
-            .height = 400,
+            .height = 450,
             .title = "stunning spoon",
             .background_color = hex_to_rgb("#282828"),
             .foreground_color = hex_to_rgb("#ebdbb2"),
             .font_family = "assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf",
+            .prompt = "run:",
         },
     };
 
@@ -59,15 +60,29 @@ int main(int argc, char *argv[]) {
     glfwSetWindowPos(launcher_win, x, y);
 
 
+    static const char *items[] = {
+        "firefox",
+        "spotify",
+        "discord",
+        "steam",
+        "poweroff",
+        "reboot",
+    };
+
+
+    launcher.items = items;
+    launcher.items_count = sizeof(items) / sizeof(items[0]);
+
     launcher_init(&launcher);
+    // everything is initialized, opening the window...
 
 
     while (!launcher.should_close) {
-        launcher_update();
+        launcher_update(&launcher);
     }
 
-
-    launcher_cleanup();
+    // window is closed performing cleanup...
+    launcher_cleanup(&launcher);
     destroy_window();
     return 0;
 }

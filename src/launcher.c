@@ -6,75 +6,96 @@
 #include "renderer.h"
 #include "keys.h"
 
+#include <stdio.h>
 
-typedef struct LauncherContext {
-    Color bg_color;
-    Color fg_color;
-
-} LauncherContext;
-
-
-static Launcher launcher;
-
-
-void launcher_init() {
+void launcher_init(Launcher *launcher) {
     renderer_init();
-
-    launcher.should_close = true;
-
-
-    static const char *items[] = {
-        "firefox",
-        "spotify",
-        "discord",
-        "steam",
-        "poweroff",
-        "reboot",
-    };
-
-    launcher.items = items;
-    launcher.items_count = sizeof(items) / sizeof(items[0]);
+    launcher->should_close = false;
 
 
-    const char *font_path = launcher.window.font_family ? launcher.window.font_family : 
+    launcher->query[0] = '\0';
+    launcher->query_length = 0;
+    launcher->selected_index = 0;
+
+    // loading font on gpu
+    const char *font_path = launcher->window.font_family ? launcher->window.font_family : 
         "assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf";
-    launcher.window.font = load_font(font_path, 40);
+    launcher->window.font = load_font(font_path, 40);
 }
 
 
-void launcher_update() {
-    clear_background(launcher.window.background_color);
 
+void launcher_update(Launcher *launcher) {
+    window_poll_events();
+    if (window_should_close()) launcher->should_close = true;
+
+    {
+        // handle all keyboard inputs here
+        int ch;
+        while ((ch = get_char_pressed()) != 0) {
+            printf("CHAR: %d '%c'\n", ch, (char)ch);
+            if (ch >= 32 && ch <= 126) {
+                if (launcher->query_length < LAUNCHER_QUERY_MAX - 1) {
+                    launcher->query[launcher->query_length++] = (char)ch;
+                    launcher->query[launcher->query_length] = '\0';
+                }
+            }
+        }
+
+        if (is_key_pressed(KEY_BACKSPACE)) {
+            if (launcher->query_length > 0) {
+                launcher->query_length--;
+                launcher->query[launcher->query_length] = '\0';
+            }
+        }
+    }
+
+
+    clear_background(launcher->window.background_color);
+
+    // draw prompt
     float prompt_x = 60.0f;
     float prompt_y = 60.0f;
-    const char *prompt = "run:";
-    draw_text(launcher.window.font, launcher.window.prompt, (Vector2){ prompt_x, prompt_y }, 1.0f, launcher.window.foreground_color);
+    draw_text(launcher->window.font, 
+            launcher->window.prompt, 
+            (Vector2){ prompt_x, prompt_y }, 1.0f, 
+            launcher->window.foreground_color);
 
 
     float spacing = 20.0f;
-    float run_width = measure_text_length(launcher.window.font, prompt, 1.0f);
-    float margin_x = prompt_x + run_width + spacing;
+    float prompt_width = measure_text_length(launcher->window.font, launcher->window.prompt, 1.0f);
 
-    float line_height = launcher.window.font.line_height > 0 ? (float)launcher.window.font.line_height : 45.0f;
+    // draw query
+    float query_x = prompt_x + prompt_width + spacing;
+    draw_text(launcher->window.font, 
+            launcher->query, 
+            (Vector2){ query_x, prompt_y }, 1.0f, 
+            launcher->window.foreground_color);
+
+
+
+    float margin_x = prompt_x + prompt_width + spacing;
+    float line_height = launcher->window.font.line_height > 0 ? (float)launcher->window.font.line_height : 45.0f;
     float margin_y = line_height + prompt_y;
+    for (int i = 0; i < launcher->items_count; i++) {
+        int next_item = margin_y + line_height;
+        if (next_item >= get_window_height()) break;
 
-    for (int i = 0; i < launcher.items_count; i++) {
-        draw_text(launcher.window.font,
-                launcher.items[i], 
+        draw_text(launcher->window.font,
+                launcher->items[i], 
                 (Vector2){ margin_x, margin_y }, 1.0f, 
-                launcher.window.foreground_color);
+                launcher->window.foreground_color);
 
         margin_y += line_height;
     }
 
 
     window_swap_buffers();
-    window_poll_events();
 }
 
 
-void launcher_cleanup() {
-    unload_font(launcher.window.font);
+void launcher_cleanup(Launcher *launcher) {
+    unload_font(launcher->window.font);
     renderer_shutdown();
 }
 

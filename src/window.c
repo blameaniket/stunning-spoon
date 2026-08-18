@@ -8,11 +8,16 @@
 
 
 #define MAX_KEYS 512
+#define CHAR_PRESSED_QUEUE_SIZE 32
 
 
 typedef struct WindowContext {
     GLFWwindow *handle;
+    int window_height;
+    int window_width;
 
+    int char_pressed_queue[CHAR_PRESSED_QUEUE_SIZE];
+    int char_pressed_queue_count;
 
     // input handling
     bool keys_down[MAX_KEYS];
@@ -27,9 +32,13 @@ static WindowContext g_win_ctx = { 0 };
 
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+static void char_callback(GLFWwindow *window, unsigned int codepoint);
 
 
 void window_init(int width, int height, const char *window_title) {
+    g_win_ctx.window_width = width;
+    g_win_ctx.window_height = height;
+
     if (!glfwInit()) {
         log_error("failed to initialize glfw\n");
         exit(EXIT_FAILURE);
@@ -57,6 +66,7 @@ void window_init(int width, int height, const char *window_title) {
 
     // for input handling
     glfwSetKeyCallback(g_win_ctx.handle, key_callback);
+    glfwSetCharCallback(g_win_ctx.handle, char_callback);
 }
 
 
@@ -73,7 +83,6 @@ bool window_should_close() {
 
 
 void destroy_window() {
-
     if (g_win_ctx.handle) {
         glfwDestroyWindow(g_win_ctx.handle);
         g_win_ctx.handle = NULL;
@@ -87,6 +96,10 @@ void window_swap_buffers() {
 }
 
 void window_poll_events() {
+    for (int i = 0; i < MAX_KEYS; i++) {
+        g_win_ctx.keys_pressed[i] = false;
+        g_win_ctx.keys_released[i] = false;
+    }
     glfwPollEvents();
 }
 
@@ -95,7 +108,14 @@ GLFWwindow* get_current_window() {
     return g_win_ctx.handle;
 }
 
+int get_window_height() {
+    return g_win_ctx.window_height;
+}
 
+
+int get_window_width() {
+    return g_win_ctx.window_width;
+}
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     if (key < 0 || key >= MAX_KEYS) return;
@@ -106,6 +126,15 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     } else if (action == GLFW_RELEASE) {
         g_win_ctx.keys_down[key] = false;
         g_win_ctx.keys_released[key] = true;
+    }
+}
+
+
+
+static void char_callback(GLFWwindow *window, unsigned int codepoint) {
+    (void)window;
+    if (g_win_ctx.char_pressed_queue_count < CHAR_PRESSED_QUEUE_SIZE) {
+        g_win_ctx.char_pressed_queue[g_win_ctx.char_pressed_queue_count++] = (int)codepoint;
     }
 }
 
@@ -124,3 +153,21 @@ bool is_key_released(int key) {
     if (key < 0 || key >= MAX_KEYS) return false;
     return g_win_ctx.keys_released[key];
 }
+
+
+
+int get_char_pressed(void) {
+    if (g_win_ctx.char_pressed_queue_count <= 0) return 0;
+
+    int value = g_win_ctx.char_pressed_queue[0];
+    for (int i = 0; i < g_win_ctx.char_pressed_queue_count - 1; i++) {
+        g_win_ctx.char_pressed_queue[i] = g_win_ctx.char_pressed_queue[i + 1];
+    }
+
+    g_win_ctx.char_pressed_queue[g_win_ctx.char_pressed_queue_count - 1] = 0;
+    g_win_ctx.char_pressed_queue_count--;
+
+    return value;
+}
+
+
