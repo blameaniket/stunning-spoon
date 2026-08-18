@@ -1,6 +1,10 @@
+
+
+
 #include "launcher.h"
 #include "renderer.h"
 #include "window.h"
+
 
 typedef struct LauncherContext {
     Color bg_color;
@@ -8,7 +12,9 @@ typedef struct LauncherContext {
     Font font;
 } LauncherContext;
 
+
 static LauncherContext ctx = { 0 };
+
 
 void launcher_init(Launcher *launcher) {
     renderer_init();
@@ -27,9 +33,10 @@ void launcher_init(Launcher *launcher) {
 void launcher_update() {
     clear_background(ctx.bg_color);
 
-    draw_text(ctx.font, "run:", (Vector2){ 60.0f, 60.0f }, 1.0f, ctx.fg_color);
-
-    float margin = 100.0f;
+    float prompt_x = 60.0f;
+    float prompt_y = 60.0f;
+    const char *prompt = "run:";
+    draw_text(ctx.font, prompt, (Vector2){ prompt_x, prompt_y }, 1.0f, ctx.fg_color);
 
     const char *list[] = {
         "firefox",
@@ -38,16 +45,19 @@ void launcher_update() {
         "steam",
     };
 
-    float margin_x = 120.0f;
-    float margin_y = 60.0f;
+    float spacing = 20.0f;
+    float run_width = measure_text_length(ctx.font, prompt, 1.0f);
+    float margin_x = prompt_x + run_width + spacing;
+    float margin_y = prompt_y;
+    float line_height = ctx.font.line_height > 0 ? (float)ctx.font.line_height : 45.0f;
 
-    for (int i=0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
         draw_text(ctx.font,
                 list[i], 
                 (Vector2){ margin_x, margin_y }, 1.0f, 
                 ctx.fg_color);
 
-        margin_y += 35;
+        margin_y += line_height;
     }
 
 
@@ -60,3 +70,5 @@ void launcher_cleanup() {
     unload_font(ctx.font);
     renderer_shutdown();
 }
+
+

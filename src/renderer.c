@@ -397,3 +397,50 @@ void draw_text(Font font, const char *text, Vector2 position, float scale, Color
     glUseProgram(0);
 }
 
+Vector2 measure_text(Font font, const char *text, float scale) {
+    Vector2 size = { 0.0f, 0.0f };
+    if (!text || !font.loaded) return size;
+
+    float current_line_width = 0.0f;
+    float max_width = 0.0f;
+    float line_h = (font.line_height > 0 ? (float)font.line_height : (float)font.size) * scale;
+    float total_height = line_h;
+
+    for (const char *p = text; *p; p++) {
+        unsigned char c = (unsigned char)*p;
+
+        if (c == '\n') {
+            if (current_line_width > max_width) {
+                max_width = current_line_width;
+            }
+            current_line_width = 0.0f;
+            total_height += line_h;
+            continue;
+        }
+
+        if (c == '\t') {
+            unsigned int space_adv = font.glyphs[' '].advance ? font.glyphs[' '].advance : (font.size << 6) / 2;
+            current_line_width += ((space_adv >> 6) * 4) * scale;
+            continue;
+        }
+
+        if (c >= 128) continue;
+
+        Glyph ch = font.glyphs[c];
+        current_line_width += (ch.advance >> 6) * scale;
+    }
+
+    if (current_line_width > max_width) {
+        max_width = current_line_width;
+    }
+
+    size.x = max_width;
+    size.y = total_height;
+    return size;
+}
+
+float measure_text_length(Font font, const char *text, float scale) {
+    return measure_text(font, text, scale).x;
+}
+
+
