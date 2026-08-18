@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include "color.h"
 #include "launcher.h"
-#include "renderer.h"
 #include "window.h"
 #include "log.h"
 
@@ -16,6 +15,7 @@ int main(int argc, char *argv[]) {
             .height = 400,
             .title = "stunning spoon",
             .background_color = hex_to_rgb("#282828"),
+            .foreground_color = hex_to_rgb("#ebdbb2"),
             .font_family = "assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf",
         },
     };
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     // currently it is a bit higher than center
     int x = monitor_x + (monitor_width - window_width) / 2;
     int y = monitor_y + (monitor_height - window_height) / 2;
-    glfwSetWindowPos(launcher_win, x, y - 100);
+    glfwSetWindowPos(launcher_win, x, y);
 
     launcher_init(&launcher);
 
@@ -63,8 +63,8 @@ int main(int argc, char *argv[]) {
         launcher_update();
     }
 
-    destroy_window();
     launcher_cleanup();
+    destroy_window();
     return 0;
 }
 
