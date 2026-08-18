@@ -61,9 +61,11 @@ int main(int argc, char *argv[]) {
 
     launcher_init(&launcher);
 
-    while (!window_should_close()) {
+
+    while (!launcher.should_close) {
         launcher_update();
     }
+
 
     launcher_cleanup();
     destroy_window();
