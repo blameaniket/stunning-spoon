@@ -5,6 +5,7 @@
 #define LAUNCHER_H
 
 #include "color.h"
+#include <stdbool.h>
 
 
 // access the launcher from main()
@@ -13,6 +14,8 @@ typedef struct Launcher Launcher;
 
 
 struct Launcher {
+    bool is_closed;
+
     struct {
         int width, height;
         const char *title;

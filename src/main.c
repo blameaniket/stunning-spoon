@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
     };
 
 
+    // initialize a glfw window
     window_init(launcher.window.width, launcher.window.height, launcher.window.title);
 
     // center the window directly from main
@@ -56,6 +57,7 @@ int main(int argc, char *argv[]) {
     int x = monitor_x + (monitor_width - window_width) / 2;
     int y = monitor_y + (monitor_height - window_height) / 2;
     glfwSetWindowPos(launcher_win, x, y);
+
 
     launcher_init(&launcher);
 

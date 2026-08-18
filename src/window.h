@@ -16,6 +16,9 @@ void window_poll_events();
 GLFWwindow* get_current_window();
 
 
+bool is_key_down(int key);
+bool is_key_pressed(int key);
+bool is_key_released(int key);
 
 #endif // WINDOW_H
 

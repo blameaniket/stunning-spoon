@@ -6,14 +6,27 @@
 #include "window.h"
 #include "log.h"
 
+
+#define MAX_KEYS 512
+
+
 typedef struct WindowContext {
     GLFWwindow *handle;
+
+
+    // input handling
+    bool keys_down[MAX_KEYS];
+    bool keys_pressed[MAX_KEYS];
+    bool keys_released[MAX_KEYS];
 } WindowContext;
 
 // global window context declared here !!!!
 // this is available to window.c only
 // for storing the state of the window
 static WindowContext g_win_ctx = { 0 };
+
+
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 
 void window_init(int width, int height, const char *window_title) {
@@ -41,6 +54,9 @@ void window_init(int width, int height, const char *window_title) {
         log_error("Failed to initialize GLAD OpenGL loader\n");
         exit(EXIT_FAILURE);
     }
+
+    // for input handling
+    glfwSetKeyCallback(g_win_ctx.handle, key_callback);
 }
 
 
@@ -80,3 +96,31 @@ GLFWwindow* get_current_window() {
 }
 
 
+
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    if (key < 0 || key >= MAX_KEYS) return;
+
+    if (action == GLFW_PRESS) {
+        g_win_ctx.keys_down[key] = true;
+        g_win_ctx.keys_pressed[key] = true;
+    } else if (action == GLFW_RELEASE) {
+        g_win_ctx.keys_down[key] = false;
+        g_win_ctx.keys_released[key] = true;
+    }
+}
+
+
+bool is_key_down(int key) {
+    if (key < 0 || key >= MAX_KEYS) return false;
+    return g_win_ctx.keys_down[key];
+}
+
+bool is_key_pressed(int key) {
+    if (key < 0 || key >= MAX_KEYS) return false;
+    return g_win_ctx.keys_pressed[key];
+}
+
+bool is_key_released(int key) {
+    if (key < 0 || key >= MAX_KEYS) return false;
+    return g_win_ctx.keys_released[key];
+}
