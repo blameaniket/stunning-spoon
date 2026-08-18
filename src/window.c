@@ -1,6 +1,5 @@
 
 
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
@@ -11,38 +10,11 @@ typedef struct WindowContext {
     GLFWwindow *handle;
 } WindowContext;
 
+// global window context declared here !!!!
+// this is available to window.c only
+// for storing the state of the window
 static WindowContext g_win_ctx = { 0 };
 
-
-
-
-static void window_center() {
-    if (!g_win_ctx.handle) return;
-    int monitor_count = 0;
-    GLFWmonitor **monitors = glfwGetMonitors(&monitor_count);
-
-    if (monitor_count == 0) return;
-
-    // For now, use the primary monitor.
-    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-    int monitor_x, monitor_y;
-    int monitor_width, monitor_height;
-
-    glfwGetMonitorWorkarea(
-        monitor,
-        &monitor_x,
-        &monitor_y,
-        &monitor_width,
-        &monitor_height
-    );
-
-    int window_width, window_height;
-    glfwGetWindowSize(g_win_ctx.handle, &window_width, &window_height);
-
-    int x = monitor_x + (monitor_width - window_width) / 2;
-    int y = monitor_y + (monitor_height - window_height) / 2;
-    glfwSetWindowPos(g_win_ctx.handle, x, y);
-}
 
 void window_init(int width, int height, const char *window_title) {
     if (!glfwInit()) {
@@ -69,14 +41,16 @@ void window_init(int width, int height, const char *window_title) {
         log_error("Failed to initialize GLAD OpenGL loader\n");
         exit(EXIT_FAILURE);
     }
-
-    window_center();
-
 }
 
 
 bool window_should_close() {
     if (g_win_ctx.handle == NULL) return true;
+
+    if (glfwGetKey(g_win_ctx.handle, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(g_win_ctx.handle, true);
+    }
+
     return glfwWindowShouldClose(g_win_ctx.handle);
 }
 
@@ -100,5 +74,9 @@ void window_poll_events() {
     glfwPollEvents();
 }
 
+
+GLFWwindow* get_current_window() {
+    return g_win_ctx.handle;
+}
 
 

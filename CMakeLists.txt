@@ -20,15 +20,21 @@ add_executable(app
 target_include_directories(app PRIVATE
     src
     external/glad/include
+    ${FREETYPE_INCLUDE_DIRS}
 )
 
-target_compile_definitions(app PRIVATE DEBUG)
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(Freetype REQUIRED)
 
 target_link_libraries(app PRIVATE
-    OpenGL::GL
     glfw
+    OpenGL::GL
+    Freetype::Freetype
     m
 )
+
+
+# debug build
+target_compile_definitions(app PRIVATE DEBUG)

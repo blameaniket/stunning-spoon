@@ -1,5 +1,6 @@
 
 
+
 #include "color.h"
 #include <stdio.h>
 
@@ -19,3 +20,5 @@ Color hex_to_rgb(const char *hex) {
 
     return c;
 }
+
+

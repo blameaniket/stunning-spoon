@@ -1,73 +1,70 @@
 
 
-#include <glad/glad.h>
-#include <stdio.h>
-#include <string.h>
-
+#include <GLFW/glfw3.h>
+#include <stdlib.h>
 #include "color.h"
 #include "launcher.h"
+#include "renderer.h"
 #include "window.h"
 #include "log.h"
 
 
-
 int main(int argc, char *argv[]) {
-    log_debug("stunning spoon\n");
-    log_debug("opengl launcher and dmenu replacement\n");
-    log_debug("-------------------------------------\n\n");
-
     struct Launcher launcher = {
         .window = {
             .width = 800,
-            .height = 600,
+            .height = 400,
             .title = "stunning spoon",
             .background_color = hex_to_rgb("#282828"),
+            .font_family = "assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf",
         },
     };
 
 
-    if (argc > 1 && (strstr(argv[1], "--help") || strstr(argv[1], "-h"))) {
-        printf("usage: ./build/app [-v | --version] [-h | --help] [-C <path>] [-c <name>=<value>]\n");
-        printf("                   [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n");
-        printf("                   [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--no-lazy-fetch]\n");
-        printf("                   [--no-optional-locks] [--no-advice] [--bare] [--git-dir=<path>]\n");
-        printf("                   [--work-tree=<path>] [--namespace=<name>] [--config-env=<name>=<envvar>]\n");
-        printf("                   <command> [<args>]\n");
-
-
-    } else if (argc > 1 && (strstr(argv[1], "--version") || strstr(argv[1], "-v"))) {
-        printf("stunning-spoon version 0.1 (beta release)\n");
-
-    } else if (argc > 1) {
-        printf("unknown option: %s\n", argv[1]);
-        printf("usage: ./build/app [-v | --version] [-h | --help] [-C <path>] [-c <name>=<value>]\n");
-        printf("                   [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n");
-        printf("                   [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--no-lazy-fetch]\n");
-        printf("                   [--no-optional-locks] [--no-advice] [--bare] [--git-dir=<path>]\n");
-        printf("                   [--work-tree=<path>] [--namespace=<name>] [--config-env=<name>=<envvar>]\n");
-        printf("                   <command> [<args>]\n");
-
-    }
-
-    log_debug("initializing window...\n");
     window_init(launcher.window.width, launcher.window.height, launcher.window.title);
+
+    // center the window directly from main
+    GLFWwindow *launcher_win = get_current_window();
+    if (!launcher_win) {
+        log_error("cannot find launcher window\n");
+        exit(EXIT_FAILURE);
+    };
+
+    int monitor_count = 0;
+    GLFWmonitor **monitors = glfwGetMonitors(&monitor_count);
+    if (monitor_count == 0) {
+        log_error("could not find any monitor\n");
+        log_error("buy a monitor dude\n");
+        exit(EXIT_FAILURE);
+    };
+
+    // for now use the primary monitor.
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    int monitor_x, monitor_y;
+    int monitor_width, monitor_height;
+
+    glfwGetMonitorWorkarea(monitor, 
+            &monitor_x, &monitor_y, 
+            &monitor_width, &monitor_height);
+
+    int window_width, window_height;
+    glfwGetWindowSize(launcher_win, &window_width, &window_height);
+
+    // launcher position here
+    // change it however you like
+    // currently it is a bit higher than center
+    int x = monitor_x + (monitor_width - window_width) / 2;
+    int y = monitor_y + (monitor_height - window_height) / 2;
+    glfwSetWindowPos(launcher_win, x, y - 100);
+
     launcher_init(&launcher);
 
-    log_debug("window is initialized\n\n");
-
-
-    log_debug("opening window ...\n\n");
     while (!window_should_close()) {
         launcher_update();
     }
 
-
-    log_debug("window closed, performing cleanup ...\n");
     destroy_window();
-
-    log_debug("finished cleanup, exiting ...\n");
-
-
+    launcher_cleanup();
     return 0;
 }
 

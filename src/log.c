@@ -22,14 +22,6 @@ static void print_indent(FILE *file) {
 }
 
 
-void log_indent(void) {
-	indent++;
-}
-
-void log_unindent(void) {
-	if (indent > 0) indent--;
-}
-
 void log_error(const char *const fmt, ...) {
 	va_list args;
 	va_start(args, fmt);

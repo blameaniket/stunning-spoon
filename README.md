@@ -1,5 +1,11 @@
 
 
+A simple opengl launcher based on dmenu. one fine day i was using my pc, i
+tried to open dmenu. but to my horror it wont open at all. so i got angry, and
+made this up, by using opengl, from scratch.
+
+
+
 # Build instructions
 
 ### Required dependencies
