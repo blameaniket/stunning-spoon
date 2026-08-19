@@ -123,7 +123,14 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     if (action == GLFW_PRESS) {
         g_win_ctx.keys_down[key] = true;
         g_win_ctx.keys_pressed[key] = true;
-    } else if (action == GLFW_RELEASE) {
+    }
+    else if (action == GLFW_REPEAT) {
+        // Key is still held.
+        // Do NOT set keys_pressed again.
+        g_win_ctx.keys_down[key] = true;
+        g_win_ctx.keys_pressed[key] = true;
+    }
+    else if (action == GLFW_RELEASE) {
         g_win_ctx.keys_down[key] = false;
         g_win_ctx.keys_released[key] = true;
     }
@@ -138,11 +145,6 @@ static void char_callback(GLFWwindow *window, unsigned int codepoint) {
     }
 }
 
-
-bool is_key_down(int key) {
-    if (key < 0 || key >= MAX_KEYS) return false;
-    return g_win_ctx.keys_down[key];
-}
 
 bool is_key_pressed(int key) {
     if (key < 0 || key >= MAX_KEYS) return false;

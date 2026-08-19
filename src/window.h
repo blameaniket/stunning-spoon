@@ -18,7 +18,6 @@ int get_window_height();
 int get_window_width();
 
 
-bool is_key_down(int key);
 bool is_key_pressed(int key);
 bool is_key_released(int key);
 int get_char_pressed();

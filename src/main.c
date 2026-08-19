@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
         .window = {
             .width = 800,
             .height = 450,
-            .title = "stunning spoon",
+            .title = "stunning-spoon launcher",
             .background_color = hex_to_rgb("#282828"),
             .foreground_color = hex_to_rgb("#ebdbb2"),
             .font_family = "assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf",

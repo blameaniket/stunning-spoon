@@ -18,9 +18,10 @@ void launcher_init(Launcher *launcher) {
     launcher->selected_index = 0;
 
     // loading font on gpu
+    int font_size = 37;
     const char *font_path = launcher->window.font_family ? launcher->window.font_family : 
         "assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf";
-    launcher->window.font = load_font(font_path, 40);
+    launcher->window.font = load_font(font_path, 35);
 }
 
 
