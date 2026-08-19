@@ -1,12 +1,10 @@
 
 
-![](./assets/launcher_image.png)
+![](./assets/launcher_screenshot.png)
 
 **stunning-spoon (beta v0.1.0)**
 
-A simple and customizable opengl launcher based on dmenu. one fine
-day i tried to open dmenu. but it wont open at all. so i got
-angry, and wrote a launcher myself.
+A simple and customizable opengl launcher based on dmenu.
 
 >[!WARNING] 
 >For now this is supported only on linux, windows support will come
