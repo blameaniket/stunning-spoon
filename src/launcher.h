@@ -27,6 +27,7 @@ struct Launcher {
         const char *title;
         Color background_color;
         Color foreground_color;
+        Color selected_item_color;
 
         Font font;
         const char *font_family;

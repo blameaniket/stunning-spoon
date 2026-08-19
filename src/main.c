@@ -8,6 +8,17 @@
 #include "log.h"
 
 
+
+static const char *items[] = {
+    "firefox",
+    "spotify",
+    "discord",
+    "steam",
+    "poweroff",
+    "reboot",
+};
+
+
 int main(int argc, char *argv[]) {
     struct Launcher launcher = {
         .window = {
@@ -16,6 +27,7 @@ int main(int argc, char *argv[]) {
             .title = "stunning-spoon launcher",
             .background_color = hex_to_rgb("#282828"),
             .foreground_color = hex_to_rgb("#ebdbb2"),
+            .selected_item_color = hex_to_rgb("#ff2c2c"),
             .font_family = "assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf",
             .prompt = "run:",
         },
@@ -58,16 +70,6 @@ int main(int argc, char *argv[]) {
     int x = monitor_x + (monitor_width - window_width) / 2;
     int y = monitor_y + (monitor_height - window_height) / 2;
     glfwSetWindowPos(launcher_win, x, y);
-
-
-    static const char *items[] = {
-        "firefox",
-        "spotify",
-        "discord",
-        "steam",
-        "poweroff",
-        "reboot",
-    };
 
 
     launcher.items = items;

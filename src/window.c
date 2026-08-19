@@ -124,6 +124,8 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
         g_win_ctx.keys_down[key] = true;
         g_win_ctx.keys_pressed[key] = true;
     }
+    // GLFW_REPEAT gets the keyboard repeat events
+    // so it is not necessary to manually configure them
     else if (action == GLFW_REPEAT) {
         // Key is still held.
         // Do NOT set keys_pressed again.

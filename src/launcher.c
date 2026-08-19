@@ -7,6 +7,7 @@
 #include "keys.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 void launcher_init(Launcher *launcher) {
     renderer_init();
@@ -16,6 +17,7 @@ void launcher_init(Launcher *launcher) {
     launcher->query[0] = '\0';
     launcher->query_length = 0;
     launcher->selected_index = 0;
+
 
     // loading font on gpu
     int font_size = 37;
@@ -29,25 +31,47 @@ void launcher_init(Launcher *launcher) {
 void launcher_update(Launcher *launcher) {
     window_poll_events();
     if (window_should_close()) launcher->should_close = true;
+    // open the window even if there is no items in the list
+    // so no other conditions
 
-    {
-        // handle all keyboard inputs here
-        int ch;
-        while ((ch = get_char_pressed()) != 0) {
-            printf("CHAR: %d '%c'\n", ch, (char)ch);
-            if (ch >= 32 && ch <= 126) {
-                if (launcher->query_length < LAUNCHER_QUERY_MAX - 1) {
-                    launcher->query[launcher->query_length++] = (char)ch;
-                    launcher->query[launcher->query_length] = '\0';
-                }
-            }
-        }
-
-        if (is_key_pressed(KEY_BACKSPACE)) {
-            if (launcher->query_length > 0) {
-                launcher->query_length--;
+    // handle all keyboard inputs here
+    int ch;
+    while ((ch = get_char_pressed()) != 0) {
+        // printf("CHAR: %d '%c'\n", ch, (char)ch);
+        if (ch >= 32 && ch <= 126) {
+            if (launcher->query_length < LAUNCHER_QUERY_MAX - 1) {
+                launcher->query[launcher->query_length++] = (char)ch;
                 launcher->query[launcher->query_length] = '\0';
             }
+        }
+    }
+
+    if (is_key_pressed(KEY_BACKSPACE)) {
+        if (launcher->query_length > 0) {
+            launcher->query_length--;
+            launcher->query[launcher->query_length] = '\0';
+        }
+    }
+
+    if (is_key_pressed(KEY_DOWN)) launcher->selected_index++;
+    if (is_key_pressed(KEY_UP)) launcher->selected_index--;
+
+    // selected index gets out of bound
+    // so calculate them and set them accurately
+    if (launcher->selected_index < 0) launcher->selected_index = 0;
+    if (launcher->selected_index >= launcher->items_count) 
+        launcher->selected_index = launcher->items_count - 1;
+
+
+
+    if (is_key_pressed(KEY_ENTER)) {
+        if (launcher->items_count > 0 &&
+                launcher->selected_index >= 0 &&
+                launcher->selected_index < launcher->items_count) {
+
+            launcher->selected_item = launcher->items[launcher->selected_index];
+            printf("SELECTED: %s\n", launcher->selected_item);
+            system(launcher->selected_item);
         }
     }
 
@@ -82,10 +106,13 @@ void launcher_update(Launcher *launcher) {
         int next_item = margin_y + line_height;
         if (next_item >= get_window_height()) break;
 
+        Color font_color = (launcher->selected_index == i) ? 
+            launcher->window.selected_item_color : launcher->window.foreground_color;
+
         draw_text(launcher->window.font,
                 launcher->items[i], 
                 (Vector2){ margin_x, margin_y }, 1.0f, 
-                launcher->window.foreground_color);
+                font_color);
 
         margin_y += line_height;
     }
