@@ -13,6 +13,7 @@ add_executable(app
     src/renderer.c
     src/log.c
     src/color.c
+    src/config_file.c
     external/glad/src/glad.c
 )
 

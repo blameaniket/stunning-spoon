@@ -6,17 +6,28 @@
 #include "launcher.h"
 #include "window.h"
 #include "log.h"
+#include "config_file.h"
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/types.h>
 
 
+static void execute_command(const char *command) {
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        return;
+    }
 
-static const char *items[] = {
-    "firefox",
-    "spotify",
-    "discord",
-    "steam",
-    "poweroff",
-    "reboot",
-};
+    if (pid == 0) {
+        execl("/bin/sh", "sh", "-c", command, (char *)NULL);
+
+        // Only reached if execl fails
+        perror("execl");
+        _exit(EXIT_FAILURE);
+    }
+}
+
 
 
 int main(int argc, char *argv[]) {
@@ -32,6 +43,13 @@ int main(int argc, char *argv[]) {
             .prompt = "run:",
         },
     };
+
+
+    Config config;
+    if (config_load(&config, "config_entries") != 0) {
+        log_error("Failed to load config_entries\n");
+        return EXIT_FAILURE;
+    }
 
 
     // initialize a glfw window
@@ -72,8 +90,10 @@ int main(int argc, char *argv[]) {
     glfwSetWindowPos(launcher_win, x, y);
 
 
-    launcher.items = items;
-    launcher.items_count = sizeof(items) / sizeof(items[0]);
+    // launcher.items = items;
+    // launcher.items_count = sizeof(items) / sizeof(items[0]);
+    launcher.items = config.entries;
+    launcher.items_count = config.entries_count;
 
     launcher_init(&launcher);
     // everything is initialized, opening the window...
@@ -83,9 +103,20 @@ int main(int argc, char *argv[]) {
         launcher_update(&launcher);
     }
 
-    // window is closed performing cleanup...
+    bool execute = launcher.should_execute;
+    const char *command = NULL;
+    if (execute &&
+            launcher.items_count > 0 &&
+            launcher.selected_index >= 0 &&
+            launcher.selected_index < launcher.items_count) {
+
+        command = launcher.items[launcher.selected_index].command;
+    }
+
     launcher_cleanup(&launcher);
     destroy_window();
+
+    if (command) execute_command(command);
     return 0;
 }
 

@@ -5,13 +5,13 @@
 #include "window.h"
 #include "renderer.h"
 #include "keys.h"
-
 #include <stdio.h>
-#include <stdlib.h>
+
 
 void launcher_init(Launcher *launcher) {
     renderer_init();
     launcher->should_close = false;
+    launcher->should_execute = false;
 
 
     launcher->query[0] = '\0';
@@ -25,6 +25,8 @@ void launcher_init(Launcher *launcher) {
         "assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf";
     launcher->window.font = load_font(font_path, 35);
 }
+
+
 
 
 
@@ -58,9 +60,15 @@ void launcher_update(Launcher *launcher) {
 
     // selected index gets out of bound
     // so calculate them and set them accurately
-    if (launcher->selected_index < 0) launcher->selected_index = 0;
-    if (launcher->selected_index >= launcher->items_count) 
-        launcher->selected_index = launcher->items_count - 1;
+    if (launcher->items_count > 0) {
+        if (launcher->selected_index < 0)
+            launcher->selected_index = 0;
+
+        if (launcher->selected_index >= launcher->items_count)
+            launcher->selected_index = launcher->items_count - 1;
+    } else {
+        launcher->selected_index = 0;
+    }
 
 
 
@@ -69,9 +77,8 @@ void launcher_update(Launcher *launcher) {
                 launcher->selected_index >= 0 &&
                 launcher->selected_index < launcher->items_count) {
 
-            launcher->selected_item = launcher->items[launcher->selected_index];
-            printf("SELECTED: %s\n", launcher->selected_item);
-            system(launcher->selected_item);
+            launcher->should_execute = true;
+            launcher->should_close = true;
         }
     }
 
@@ -110,7 +117,7 @@ void launcher_update(Launcher *launcher) {
             launcher->window.selected_item_color : launcher->window.foreground_color;
 
         draw_text(launcher->window.font,
-                launcher->items[i], 
+                launcher->items[i].name, 
                 (Vector2){ margin_x, margin_y }, 1.0f, 
                 font_color);
 

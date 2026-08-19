@@ -5,6 +5,7 @@
 #define LAUNCHER_H
 
 #include "color.h"
+#include "config_file.h"
 #include "renderer.h"
 #include <stdbool.h>
 
@@ -19,6 +20,7 @@ typedef struct Launcher Launcher;
 
 struct Launcher {
     bool should_close;
+    bool should_execute;
     char query[LAUNCHER_QUERY_MAX];
     int query_length;
 
@@ -36,7 +38,8 @@ struct Launcher {
 
 
     // store the items
-    const char **items;
+    // const char **items;
+    ConfigEntry *items;
     int items_count;
 
     // track selection
