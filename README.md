@@ -1,8 +1,16 @@
-![](https://github.com/philj56/tofi/blob/master/screenshot_fullscreen.png)
 
-A simple opengl launcher based on dmenu. one fine day i tried to
-open dmenu. but it wont open at all. so i got angry, and wrote a
-launcher myself.
+
+![](./assets/launcher_image.png)
+
+**stunning-spoon (beta v0.1.0)**
+
+A simple and customizable opengl launcher based on dmenu. one fine
+day i tried to open dmenu. but it wont open at all. so i got
+angry, and wrote a launcher myself.
+
+>[!WARNING] 
+>For now this is supported only on linux, windows support will come
+>later
 
 
 
