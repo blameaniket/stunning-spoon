@@ -13,7 +13,6 @@ angry, and wrote a launcher myself.
 >later
 
 
-
 # Build instructions
 
 ### Required dependencies
@@ -37,6 +36,23 @@ After compilation run the app using this command:
 ```bash
 ./build/app
 ```
+
+
+# Configuration
+
+You can directly configure the look of the launcher from the `src/main.c` file. The thing you can also configure is the entries part. You can put whatever entries you want like a bookmark. to configure the entries, edit the `config_entries` file.
+
+An example `config_entries` file would be:
+```text
+firefox: firefox
+discord: /usr/sbin/vesktop
+poweroff: poweroff
+reboot: reboot
+```
+
+In the entry `discord: /usr/sbin/vesktop`, `discord` appears on the launcher and the command that gets executed is `/usr/sbin/vesktop`.
+
+
 
 # License
 MIT
