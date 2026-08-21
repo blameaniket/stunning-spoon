@@ -8,8 +8,41 @@
 #include "log.h"
 #include "config.h"
 #include <unistd.h>
+#include <string.h>
 #include <stdio.h>
 #include <sys/types.h>
+
+
+
+
+
+static void parse_args(int argc, char *argv[]) {
+    if (argc > 1 && (strstr(argv[1], "--help") || strstr(argv[1], "-h"))) {
+        printf("usage: ./build/app [-v | --version] [-h | --help] [-C <path>] [-c <name>=<value>]\n");
+        printf("                   [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n");
+        printf("                   [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--no-lazy-fetch]\n");
+        printf("                   [--no-optional-locks] [--no-advice] [--bare] [--git-dir=<path>]\n");
+        printf("                   [--work-tree=<path>] [--namespace=<name>] [--config-env=<name>=<envvar>]\n");
+        printf("                   <command> [<args>]\n");
+
+
+    } else if (argc > 1 && (strstr(argv[1], "--version") || strstr(argv[1], "-v"))) {
+        printf("stunning-spoon version v1.0 (beta release)\n");
+
+    } else if (argc > 1) {
+        printf("unknown option: %s\n", argv[1]);
+        printf("usage: ./build/app [-v | --version] [-h | --help] [-C <path>] [-c <name>=<value>]\n");
+        printf("                   [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n");
+        printf("                   [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--no-lazy-fetch]\n");
+        printf("                   [--no-optional-locks] [--no-advice] [--bare] [--git-dir=<path>]\n");
+        printf("                   [--work-tree=<path>] [--namespace=<name>] [--config-env=<name>=<envvar>]\n");
+        printf("                   <command> [<args>]\n");
+
+    }
+
+}
+
+
 
 
 static void execute_command(const char *command) {
@@ -31,6 +64,8 @@ static void execute_command(const char *command) {
 
 
 int main(int argc, char *argv[]) {
+    parse_args(argc, argv);
+
     struct Launcher launcher = {
         .window = {
             .width = 800,
@@ -44,10 +79,13 @@ int main(int argc, char *argv[]) {
         },
     };
 
+
+    // load config file
     Config config;
     const char *home = getenv("HOME");
     char config_path[512];
     snprintf(config_path, sizeof(config_path), "%s/dev/projects/stunning-spoon/config_entries", home);
+
 
     if (config_load(&config, config_path) != 0) {
         log_error("Failed to load config_entries\n");
@@ -90,7 +128,7 @@ int main(int argc, char *argv[]) {
     // currently it is a bit higher than center
     int x = monitor_x + (monitor_width - window_width) / 2;
     int y = monitor_y + (monitor_height - window_height) / 2;
-    glfwSetWindowPos(launcher_win, x, y);
+    glfwSetWindowPos(launcher_win, x, y + 200);
 
 
     // launcher.items = items;
@@ -113,7 +151,7 @@ int main(int argc, char *argv[]) {
             launcher.selected_index >= 0 &&
             launcher.selected_index < launcher.items_count) {
 
-        command = launcher.items[launcher.selected_index].command;
+        command = launcher.result.items[launcher.selected_index]->command;
     }
 
     launcher_cleanup(&launcher);
