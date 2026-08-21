@@ -11,9 +11,10 @@ add_executable(app
     src/launcher.c
     src/window.c
     src/renderer.c
+    src/match.c
     src/log.c
     src/color.c
-    src/config_file.c
+    src/config.c
     external/glad/src/glad.c
 )
 

@@ -6,7 +6,7 @@
 #include "launcher.h"
 #include "window.h"
 #include "log.h"
-#include "config_file.h"
+#include "config.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -44,9 +44,12 @@ int main(int argc, char *argv[]) {
         },
     };
 
-
     Config config;
-    if (config_load(&config, "config_entries") != 0) {
+    const char *home = getenv("HOME");
+    char config_path[512];
+    snprintf(config_path, sizeof(config_path), "%s/dev/projects/stunning-spoon/config_entries", home);
+
+    if (config_load(&config, config_path) != 0) {
         log_error("Failed to load config_entries\n");
         return EXIT_FAILURE;
     }
