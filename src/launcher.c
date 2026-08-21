@@ -84,8 +84,10 @@ void launcher_update(Launcher *launcher) {
     // handle selection index
     if (is_key_pressed(KEY_DOWN)) launcher->selected_index++;
     if (is_key_pressed(KEY_UP)) launcher->selected_index--;
-    if (is_key_pressed(KEY_LEFT_CONTROL) && is_key_pressed(KEY_N)) launcher->selected_index++;
-    if (is_key_pressed(KEY_LEFT_CONTROL) && is_key_pressed(KEY_P)) launcher->selected_index--;
+
+    bool ctrl = is_key_down(KEY_LEFT_CONTROL) || is_key_down(KEY_RIGHT_CONTROL);
+    if (is_key_pressed(KEY_DOWN) || (ctrl && is_key_pressed(KEY_N))) launcher->selected_index++;
+    if (is_key_pressed(KEY_UP)   || (ctrl && is_key_pressed(KEY_P))) launcher->selected_index--;
 
 
     // selected index gets out of bound
