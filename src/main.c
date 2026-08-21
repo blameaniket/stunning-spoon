@@ -25,9 +25,12 @@ static void parse_args(int argc, char *argv[]) {
         printf("                   [--work-tree=<path>] [--namespace=<name>] [--config-env=<name>=<envvar>]\n");
         printf("                   <command> [<args>]\n");
 
+        exit(EXIT_SUCCESS);
+
 
     } else if (argc > 1 && (strstr(argv[1], "--version") || strstr(argv[1], "-v"))) {
-        printf("stunning-spoon version v1.0 (beta release)\n");
+        printf("stunning-spoon version v1.0.0 (beta release)\n");
+        exit(EXIT_SUCCESS);
 
     } else if (argc > 1) {
         printf("unknown option: %s\n", argv[1]);
@@ -37,6 +40,9 @@ static void parse_args(int argc, char *argv[]) {
         printf("                   [--no-optional-locks] [--no-advice] [--bare] [--git-dir=<path>]\n");
         printf("                   [--work-tree=<path>] [--namespace=<name>] [--config-env=<name>=<envvar>]\n");
         printf("                   <command> [<args>]\n");
+
+
+        exit(EXIT_FAILURE);
 
     }
 
