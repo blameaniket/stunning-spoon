@@ -153,6 +153,14 @@ bool is_key_pressed(int key) {
     return g_win_ctx.keys_pressed[key];
 }
 
+
+
+bool is_key_down(int key) {
+    if (key < 0 || key >= MAX_KEYS) return false;
+    return g_win_ctx.keys_down[key];
+}
+
+
 bool is_key_released(int key) {
     if (key < 0 || key >= MAX_KEYS) return false;
     return g_win_ctx.keys_released[key];
