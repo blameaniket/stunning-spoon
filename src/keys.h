@@ -58,6 +58,7 @@
 #define KEY_UP              265
 #define KEY_LEFT_SHIFT      340
 #define KEY_LEFT_CONTROL    341
+#define KEY_RIGHT_CONTROL   345
 #define KEY_LEFT_ALT        342
 
 
