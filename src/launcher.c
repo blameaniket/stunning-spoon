@@ -61,11 +61,46 @@ void launcher_update(Launcher *launcher) {
         }
     }
 
+
+    bool ctrl = is_key_down(KEY_LEFT_CONTROL) || is_key_down(KEY_RIGHT_CONTROL);
+
     if (is_key_pressed(KEY_BACKSPACE)) {
-        if (launcher->query_length > 0) {
-            launcher->query_length--;
+        if (ctrl) {
+            while (launcher->query_length > 0 &&
+                    launcher->query[launcher->query_length - 1] == ' ') {
+                launcher->query_length--;
+            }
+
+            while (launcher->query_length > 0 &&
+                    launcher->query[launcher->query_length - 1] != ' ') {
+                launcher->query_length--;
+            }
+
             launcher->query[launcher->query_length] = '\0';
+
+        } else {
+            // normal Backspace delete one character
+            if (launcher->query_length > 0) {
+                launcher->query_length--;
+                launcher->query[launcher->query_length] = '\0';
+            }
         }
+    }
+
+
+    // Ctrl-W: delete word
+    if (ctrl && is_key_pressed(KEY_W)) {
+        while (launcher->query_length > 0 &&
+                launcher->query[launcher->query_length - 1] == ' ') {
+            launcher->query_length--;
+        }
+
+        while (launcher->query_length > 0 &&
+                launcher->query[launcher->query_length - 1] != ' ') {
+            launcher->query_length--;
+        }
+
+        launcher->query[launcher->query_length] = '\0';
     }
 
 
@@ -85,7 +120,6 @@ void launcher_update(Launcher *launcher) {
     if (is_key_pressed(KEY_DOWN)) launcher->selected_index++;
     if (is_key_pressed(KEY_UP)) launcher->selected_index--;
 
-    bool ctrl = is_key_down(KEY_LEFT_CONTROL) || is_key_down(KEY_RIGHT_CONTROL);
     if (is_key_pressed(KEY_DOWN) || (ctrl && is_key_pressed(KEY_N))) launcher->selected_index++;
     if (is_key_pressed(KEY_UP)   || (ctrl && is_key_pressed(KEY_P))) launcher->selected_index--;
 
