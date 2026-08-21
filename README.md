@@ -2,7 +2,7 @@
 
 ![](./assets/launcher_screenshot.png)
 
-**stunning-spoon (beta v0.1.0)**
+**stunning-spoon (beta v1.0)**
 
 A simple and customizable opengl launcher based on dmenu.
 
