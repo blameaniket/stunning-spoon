@@ -21,8 +21,6 @@ typedef struct Launcher Launcher;
 struct Launcher {
     bool should_close;
     bool should_execute;
-    char query[LAUNCHER_QUERY_MAX];
-    int query_length;
 
     struct {
         int width, height;
@@ -45,6 +43,13 @@ struct Launcher {
         ConfigEntry **items;
         int items_count;
     } result;
+
+
+
+    // query
+    char query[LAUNCHER_QUERY_MAX];
+    int query_length;
+    int cursor_pos;
 
     // track selection
     int selected_index;

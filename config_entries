@@ -3,3 +3,6 @@ firefox_private: firefox --private-window
 spotify: spotify-launcher
 poweroff: poweroff
 reboot: reboot
+thunar: thunar
+alacritty: alacritty
+suckless-terminal: st

@@ -24,6 +24,8 @@ void launcher_init(Launcher *launcher) {
     launcher->result.items = malloc(sizeof(ConfigEntry *) * launcher->items_count);
     launcher->result.items_count = 0;
 
+    launcher->cursor_pos = 0;
+
     if (launcher->result.items == NULL && launcher->items_count > 0) {
         log_error("failed to allocate result items\n");
         launcher->should_close = true;
@@ -116,10 +118,6 @@ void launcher_update(Launcher *launcher) {
 
 
 
-    // handle selection index
-    if (is_key_pressed(KEY_DOWN)) launcher->selected_index++;
-    if (is_key_pressed(KEY_UP)) launcher->selected_index--;
-
     if (is_key_pressed(KEY_DOWN) || (ctrl && is_key_pressed(KEY_N))) launcher->selected_index++;
     if (is_key_pressed(KEY_UP)   || (ctrl && is_key_pressed(KEY_P))) launcher->selected_index--;
 
@@ -150,6 +148,7 @@ void launcher_update(Launcher *launcher) {
 
 
 
+    // set launcher background
     clear_background(launcher->window.background_color);
 
     // draw prompt
@@ -179,7 +178,7 @@ void launcher_update(Launcher *launcher) {
 
 
     for (int i = 0; i < launcher->result.items_count; i++) {
-        int next_item = margin_y + line_height;
+        int next_item = margin_y + 2*line_height;
         if (next_item >= get_window_height()) break;
 
         Color font_color = (launcher->selected_index == i) ? 
