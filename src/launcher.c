@@ -4,8 +4,11 @@
 #include "launcher.h"
 #include "window.h"
 #include "renderer.h"
+#include "match.h"
 #include "keys.h"
+#include "log.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 
 void launcher_init(Launcher *launcher) {
@@ -18,11 +21,22 @@ void launcher_init(Launcher *launcher) {
     launcher->query_length = 0;
     launcher->selected_index = 0;
 
+    launcher->result.items = malloc(sizeof(ConfigEntry *) * launcher->items_count);
+    launcher->result.items_count = 0;
 
-    // loading font on gpu
+    if (launcher->result.items == NULL && launcher->items_count > 0) {
+        log_error("failed to allocate result items\n");
+        launcher->should_close = true;
+        return;
+    }
+
+
+    const char *home = getenv("HOME");
+    char font_path[512];
+
     int font_size = 37;
-    const char *font_path = launcher->window.font_family ? launcher->window.font_family : 
-        "assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf";
+    snprintf(font_path, sizeof(font_path), 
+            "%s/dev/projects/stunning-spoon/assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf", home);
     launcher->window.font = load_font(font_path, 35);
 }
 
@@ -33,8 +47,7 @@ void launcher_init(Launcher *launcher) {
 void launcher_update(Launcher *launcher) {
     window_poll_events();
     if (window_should_close()) launcher->should_close = true;
-    // open the window even if there is no items in the list
-    // so no other conditions
+
 
     // handle all keyboard inputs here
     int ch;
@@ -55,17 +68,34 @@ void launcher_update(Launcher *launcher) {
         }
     }
 
+
+
+    // this puts all the values for 
+    // result items and resultant items count
+    // all in one go, so no need to worry about resultant items count
+    match_items(launcher->items, 
+            launcher->items_count, 
+            launcher->query, 
+            launcher->result.items, 
+            &launcher->result.items_count);
+
+
+
+    // handle selection index
     if (is_key_pressed(KEY_DOWN)) launcher->selected_index++;
     if (is_key_pressed(KEY_UP)) launcher->selected_index--;
+    if (is_key_pressed(KEY_LEFT_CONTROL) && is_key_pressed(KEY_N)) launcher->selected_index++;
+    if (is_key_pressed(KEY_LEFT_CONTROL) && is_key_pressed(KEY_P)) launcher->selected_index--;
+
 
     // selected index gets out of bound
     // so calculate them and set them accurately
-    if (launcher->items_count > 0) {
+    if (launcher->result.items_count > 0) {
         if (launcher->selected_index < 0)
             launcher->selected_index = 0;
 
-        if (launcher->selected_index >= launcher->items_count)
-            launcher->selected_index = launcher->items_count - 1;
+        if (launcher->selected_index >= launcher->result.items_count)
+            launcher->selected_index = launcher->result.items_count - 1;
     } else {
         launcher->selected_index = 0;
     }
@@ -73,14 +103,15 @@ void launcher_update(Launcher *launcher) {
 
 
     if (is_key_pressed(KEY_ENTER)) {
-        if (launcher->items_count > 0 &&
+        if (launcher->result.items_count > 0 &&
                 launcher->selected_index >= 0 &&
-                launcher->selected_index < launcher->items_count) {
+                launcher->selected_index < launcher->result.items_count) {
 
             launcher->should_execute = true;
             launcher->should_close = true;
         }
     }
+
 
 
     clear_background(launcher->window.background_color);
@@ -109,7 +140,9 @@ void launcher_update(Launcher *launcher) {
     float margin_x = prompt_x + prompt_width + spacing;
     float line_height = launcher->window.font.line_height > 0 ? (float)launcher->window.font.line_height : 45.0f;
     float margin_y = line_height + prompt_y;
-    for (int i = 0; i < launcher->items_count; i++) {
+
+
+    for (int i = 0; i < launcher->result.items_count; i++) {
         int next_item = margin_y + line_height;
         if (next_item >= get_window_height()) break;
 
@@ -117,7 +150,7 @@ void launcher_update(Launcher *launcher) {
             launcher->window.selected_item_color : launcher->window.foreground_color;
 
         draw_text(launcher->window.font,
-                launcher->items[i].name, 
+                launcher->result.items[i]->name, 
                 (Vector2){ margin_x, margin_y }, 1.0f, 
                 font_color);
 
@@ -130,6 +163,8 @@ void launcher_update(Launcher *launcher) {
 
 
 void launcher_cleanup(Launcher *launcher) {
+    free(launcher->result.items);
+
     unload_font(launcher->window.font);
     renderer_shutdown();
 }

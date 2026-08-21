@@ -5,7 +5,7 @@
 #define LAUNCHER_H
 
 #include "color.h"
-#include "config_file.h"
+#include "config.h"
 #include "renderer.h"
 #include <stdbool.h>
 
@@ -41,6 +41,10 @@ struct Launcher {
     // const char **items;
     ConfigEntry *items;
     int items_count;
+    struct {
+        ConfigEntry **items;
+        int items_count;
+    } result;
 
     // track selection
     int selected_index;
