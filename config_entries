@@ -5,4 +5,7 @@ poweroff: poweroff
 reboot: reboot
 thunar: thunar
 alacritty: alacritty
+emacs: emacs
+discord: /usr/sbin/vesktop
+openpdf: st -e bash -c '~/dev/dotfiles/scripts/zathura.sh'
 suckless-terminal: st
