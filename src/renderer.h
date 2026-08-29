@@ -11,7 +11,7 @@ typedef struct {
     float width;
     float height;
     Color color;
-} Rectangle;
+} RendererRectangle;
 
 typedef struct {
     unsigned int texture_id;
@@ -37,7 +37,7 @@ void renderer_init(void);
 void renderer_shutdown(void);
 void clear_background(Color color);
 
-void draw_rectangle(Rectangle rectangle);
+void draw_rectangle(RendererRectangle rectangle);
 
 Font load_font(const char *file_path, unsigned int font_size);
 void unload_font(Font font);

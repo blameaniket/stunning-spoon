@@ -7,7 +7,7 @@
 A simple and customizable opengl launcher based on dmenu.
 
 >[!WARNING] 
->For now this is supported only on linux, windows support will come
+>For now this is supported only on linux experimental windows support only, windows support will come
 >later
 
 

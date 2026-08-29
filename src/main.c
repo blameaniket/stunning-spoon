@@ -7,10 +7,19 @@
 #include "window.h"
 #include "log.h"
 #include "config.h"
-#include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+
+#include <string.h>
+#include <stdio.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
 #include <sys/types.h>
+#endif
+
 
 
 
@@ -50,28 +59,62 @@ static void parse_args(int argc, char *argv[]) {
 
 
 
+static void execute_command(const char *command)
+{
+#ifdef _WIN32
 
-static void execute_command(const char *command) {
+    log_debug("executing Windows command: %s\n", command);
+
+    HINSTANCE result = ShellExecuteA(
+        NULL,
+        "open",
+        command,
+        NULL,
+        NULL,
+        SW_SHOWNORMAL
+    );
+
+    if ((INT_PTR)result <= 32) {
+        log_error(
+            "failed to execute command '%s', ShellExecute error: %lld\n",
+            command,
+            (long long)(INT_PTR)result
+        );
+    } else {
+        log_debug("command launched successfully\n");
+    }
+
+#else
+
     pid_t pid = fork();
+
     if (pid < 0) {
         perror("fork");
         return;
     }
 
     if (pid == 0) {
-        execl("/bin/sh", "sh", "-c", command, (char *)NULL);
+        execl(
+            "/bin/sh",
+            "sh",
+            "-c",
+            command,
+            (char *)NULL
+        );
 
-        // Only reached if execl fails
         perror("execl");
         _exit(EXIT_FAILURE);
     }
+
+#endif
 }
-
-
 
 int main(int argc, char *argv[]) {
     parse_args(argc, argv);
+    log_debug("arguments parsed\n");
 
+
+    log_debug("initializing launcher\n");
     struct Launcher launcher = {
         .window = {
             .width = 800,
@@ -86,11 +129,39 @@ int main(int argc, char *argv[]) {
     };
 
 
+    log_debug("launcehr initialized\n");
+    log_debug("loading config file\n");
     // load config file
     Config config;
-    const char *home = getenv("HOME");
+    const char *home;
+
+#ifdef _WIN32
+    home = getenv("USERPROFILE");
+#else
+    home = getenv("HOME");
+#endif
+
+    if (!home) {
+        log_error("Could not determine home directory\n");
+        return EXIT_FAILURE;
+    }
+
     char config_path[512];
-    snprintf(config_path, sizeof(config_path), "%s/dev/projects/stunning-spoon/config_entries", home);
+
+#ifdef _WIN32
+    snprintf(
+        config_path,
+        sizeof(config_path),
+        "config_entries.windows"
+    );
+#else
+    snprintf(
+            config_path,
+            sizeof(config_path),
+            "%s/dev/projects/stunning-spoon/config_entries",
+            home
+            );
+#endif
 
 
     if (config_load(&config, config_path) != 0) {
@@ -98,10 +169,15 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    log_debug("config file loaded\n");
 
+
+    log_debug("initialize window\n");
     // initialize a glfw window
     window_init(launcher.window.width, launcher.window.height, launcher.window.title);
 
+    log_debug("window initialized\n");
+    log_debug("window centering...\n");
     // center the window directly from main
     GLFWwindow *launcher_win = get_current_window();
     if (!launcher_win) {
@@ -134,7 +210,9 @@ int main(int argc, char *argv[]) {
     // currently it is a bit higher than center
     int x = monitor_x + (monitor_width - window_width) / 2;
     int y = monitor_y + (monitor_height - window_height) / 2;
-    glfwSetWindowPos(launcher_win, x, y + 200);
+    glfwSetWindowPos(launcher_win, x, y);
+
+    log_debug("window centered\n");
 
 
     // launcher.items = items;
@@ -144,13 +222,19 @@ int main(int argc, char *argv[]) {
 
     launcher_init(&launcher);
     // everything is initialized, opening the window...
+    log_debug("everythiung is initialized opening window\n");
 
+    log_debug("launcher initialized, should_close=%d\n", launcher.should_close);
 
     while (!launcher.should_close) {
         launcher_update(&launcher);
     }
 
+    log_debug("closing window....\n");
+
     bool execute = launcher.should_execute;
+    log_debug("[11] should_execute=%d\n", execute);
+
     const char *command = NULL;
     if (execute &&
             launcher.items_count > 0 &&

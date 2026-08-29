@@ -1,0 +1,9 @@
+firefox: firefox
+firefox_private: firefox -private-window
+spotify: C:\Users\Aniket\AppData\Roaming\Spotify\Spotify.exe
+discord: discord
+notepad: notepad
+calculator: calc
+terminal: wt
+powershell: powershell
+explorer: explorer

@@ -33,15 +33,17 @@ void launcher_init(Launcher *launcher) {
     }
 
 
-    const char *home = getenv("HOME");
-    char font_path[512];
+char font_path[512];
 
-    int font_size = 37;
-    snprintf(font_path, sizeof(font_path), 
-            "%s/dev/projects/stunning-spoon/assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf", home);
+    snprintf(
+        font_path,
+        sizeof(font_path),
+        "assets/fonts/IosevkaTermSlab_nerdfont/"
+        "IosevkaTermSlabNerdFont-Regular.ttf"
+    );
+
     launcher->window.font = load_font(font_path, 35);
 }
-
 
 
 

@@ -236,7 +236,7 @@ void clear_background(Color color) {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void draw_rectangle(Rectangle rectangle) {
+void draw_rectangle(RendererRectangle rectangle) {
     if (rectangle.width <= 0.0f || rectangle.height <= 0.0f) return;
 
     glUseProgram(g_renderer_ctx.rect_shader);
