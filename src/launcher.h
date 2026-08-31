@@ -49,7 +49,10 @@ struct Launcher {
     // query
     char query[LAUNCHER_QUERY_MAX];
     int query_length;
+
     int cursor_pos;
+    float cursor_width;
+    float cursor_height;
 
     // track selection
     int selected_index;

@@ -21,10 +21,6 @@
 #endif
 
 
-
-
-
-
 static void parse_args(int argc, char *argv[]) {
     if (argc > 1 && (strstr(argv[1], "--help") || strstr(argv[1], "-h"))) {
         printf("usage: ./build/app [-v | --version] [-h | --help] [-C <path>] [-c <name>=<value>]\n");
@@ -62,17 +58,7 @@ static void parse_args(int argc, char *argv[]) {
 static void execute_command(const char *command)
 {
 #ifdef _WIN32
-
-    log_debug("executing Windows command: %s\n", command);
-
-    HINSTANCE result = ShellExecuteA(
-        NULL,
-        "open",
-        command,
-        NULL,
-        NULL,
-        SW_SHOWNORMAL
-    );
+    HINSTANCE result = ShellExecuteA(NULL, "open", command, NULL, NULL, SW_SHOWNORMAL);
 
     if ((INT_PTR)result <= 32) {
         log_error(
@@ -83,11 +69,8 @@ static void execute_command(const char *command)
     } else {
         log_debug("command launched successfully\n");
     }
-
 #else
-
     pid_t pid = fork();
-
     if (pid < 0) {
         perror("fork");
         return;
@@ -105,16 +88,13 @@ static void execute_command(const char *command)
         perror("execl");
         _exit(EXIT_FAILURE);
     }
-
 #endif
 }
 
 int main(int argc, char *argv[]) {
     parse_args(argc, argv);
-    log_debug("arguments parsed\n");
 
 
-    log_debug("initializing launcher\n");
     struct Launcher launcher = {
         .window = {
             .width = 800,
@@ -129,12 +109,9 @@ int main(int argc, char *argv[]) {
     };
 
 
-    log_debug("launcehr initialized\n");
-    log_debug("loading config file\n");
     // load config file
     Config config;
     const char *home;
-
 #ifdef _WIN32
     home = getenv("USERPROFILE");
 #else
@@ -169,15 +146,10 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    log_debug("config file loaded\n");
 
-
-    log_debug("initialize window\n");
     // initialize a glfw window
     window_init(launcher.window.width, launcher.window.height, launcher.window.title);
 
-    log_debug("window initialized\n");
-    log_debug("window centering...\n");
     // center the window directly from main
     GLFWwindow *launcher_win = get_current_window();
     if (!launcher_win) {
@@ -212,7 +184,6 @@ int main(int argc, char *argv[]) {
     int y = monitor_y + (monitor_height - window_height) / 2;
     glfwSetWindowPos(launcher_win, x, y);
 
-    log_debug("window centered\n");
 
 
     // launcher.items = items;
@@ -222,18 +193,14 @@ int main(int argc, char *argv[]) {
 
     launcher_init(&launcher);
     // everything is initialized, opening the window...
-    log_debug("everythiung is initialized opening window\n");
 
-    log_debug("launcher initialized, should_close=%d\n", launcher.should_close);
 
     while (!launcher.should_close) {
         launcher_update(&launcher);
     }
 
-    log_debug("closing window....\n");
 
     bool execute = launcher.should_execute;
-    log_debug("[11] should_execute=%d\n", execute);
 
     const char *command = NULL;
     if (execute &&

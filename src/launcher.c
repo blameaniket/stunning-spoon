@@ -25,6 +25,7 @@ void launcher_init(Launcher *launcher) {
     launcher->result.items_count = 0;
 
     launcher->cursor_pos = 0;
+    launcher->cursor_width = 2.0f;
 
     if (launcher->result.items == NULL && launcher->items_count > 0) {
         log_error("failed to allocate result items\n");
@@ -33,8 +34,7 @@ void launcher_init(Launcher *launcher) {
     }
 
 
-char font_path[512];
-
+    char font_path[512];
     snprintf(
         font_path,
         sizeof(font_path),
@@ -61,6 +61,7 @@ void launcher_update(Launcher *launcher) {
             if (launcher->query_length < LAUNCHER_QUERY_MAX - 1) {
                 launcher->query[launcher->query_length++] = (char)ch;
                 launcher->query[launcher->query_length] = '\0';
+                launcher->cursor_pos++;
             }
         }
     }
@@ -148,12 +149,8 @@ void launcher_update(Launcher *launcher) {
         }
     }
 
-
-
-    // set launcher background
     clear_background(launcher->window.background_color);
 
-    // draw prompt
     float prompt_x = 60.0f;
     float prompt_y = 60.0f;
     draw_text(launcher->window.font, 
@@ -172,12 +169,23 @@ void launcher_update(Launcher *launcher) {
             (Vector2){ query_x, prompt_y }, 1.0f, 
             launcher->window.foreground_color);
 
+    // cursor position
+    float query_width = measure_text_length(launcher->window.font, launcher->query, 1.0f);
+    float cursor_x = query_x + query_width;
+
+    draw_rectangle((RendererRectangle){
+            .x = cursor_x,
+            .y = prompt_y,
+            .width = launcher->cursor_width,
+            .height = (float)launcher->window.font.line_height,
+            .color = launcher->window.foreground_color
+            });
 
 
-    float margin_x = prompt_x + prompt_width + spacing;
+
     float line_height = launcher->window.font.line_height > 0 ? (float)launcher->window.font.line_height : 45.0f;
+    float margin_x = prompt_x + prompt_width + spacing;
     float margin_y = line_height + prompt_y;
-
 
     for (int i = 0; i < launcher->result.items_count; i++) {
         int next_item = margin_y + 2*line_height;
