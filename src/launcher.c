@@ -178,8 +178,7 @@ void launcher_update(Launcher *launcher) {
             .y = prompt_y,
             .width = launcher->cursor_width,
             .height = (float)launcher->window.font.line_height,
-            .color = launcher->window.foreground_color
-            });
+            .color = launcher->window.foreground_color });
 
 
 

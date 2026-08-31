@@ -10,7 +10,13 @@ Color hex_to_rgb(const char *hex) {
     if (hex[0] == '#') {
         hex++;
     }
+
+
+#ifdef _WIN32
+    sscanf_s(hex, "%x", &value);
+#else
     sscanf(hex, "%x", &value);
+#endif
 
     Color c;
     c.r = ((value >> 16) & 0xFF) / 255.0f;
