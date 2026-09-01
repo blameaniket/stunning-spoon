@@ -49,6 +49,7 @@ struct Launcher {
     // query
     char query[LAUNCHER_QUERY_MAX];
     int query_length;
+    float single_letter_width;
 
     int cursor_pos;
     float cursor_width;

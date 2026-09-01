@@ -9,7 +9,10 @@
 #include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+
+static int previous_cursor_pos = -1;
 
 void launcher_init(Launcher *launcher) {
     renderer_init();
@@ -27,6 +30,7 @@ void launcher_init(Launcher *launcher) {
     launcher->cursor_pos = 0;
     launcher->cursor_width = 2.0f;
 
+
     if (launcher->result.items == NULL && launcher->items_count > 0) {
         log_error("failed to allocate result items\n");
         launcher->should_close = true;
@@ -43,6 +47,8 @@ void launcher_init(Launcher *launcher) {
     );
 
     launcher->window.font = load_font(font_path, 35);
+
+    launcher->single_letter_width = measure_text_length(launcher->window.font, "Z", 1.0);
 }
 
 
@@ -69,26 +75,31 @@ void launcher_update(Launcher *launcher) {
 
     bool ctrl = is_key_down(KEY_LEFT_CONTROL) || is_key_down(KEY_RIGHT_CONTROL);
 
+    if (ctrl && is_key_pressed(KEY_BACKSPACE)) {
+        while (launcher->query_length > 0 
+                && launcher->query[launcher->query_length - 1] == ' ') {
+            launcher->query_length--;
+        }
+
+        while (launcher->query_length > 0 
+                && launcher->query[launcher->query_length - 1] != ' ') {
+            launcher->query_length--;
+        }
+
+        launcher->query[launcher->query_length] = '\0';
+    }
+
+
     if (is_key_pressed(KEY_BACKSPACE)) {
-        if (ctrl) {
-            while (launcher->query_length > 0 &&
-                    launcher->query[launcher->query_length - 1] == ' ') {
-                launcher->query_length--;
-            }
+        if (launcher->cursor_pos > 0) {
+            memmove(
+                    &launcher->query[launcher->cursor_pos - 1],
+                    &launcher->query[launcher->cursor_pos],
+                    launcher->query_length - launcher->cursor_pos + 1
+                   );
 
-            while (launcher->query_length > 0 &&
-                    launcher->query[launcher->query_length - 1] != ' ') {
-                launcher->query_length--;
-            }
-
-            launcher->query[launcher->query_length] = '\0';
-
-        } else {
-            // normal Backspace delete one character
-            if (launcher->query_length > 0) {
-                launcher->query_length--;
-                launcher->query[launcher->query_length] = '\0';
-            }
+            launcher->query_length--;
+            launcher->cursor_pos--;
         }
     }
 
@@ -107,6 +118,24 @@ void launcher_update(Launcher *launcher) {
 
         launcher->query[launcher->query_length] = '\0';
     }
+
+    if (is_key_pressed(KEY_LEFT)) launcher->cursor_pos--;
+    if (is_key_pressed(KEY_RIGHT)) launcher->cursor_pos++;
+
+    if (launcher->query_length > 0) {
+        if (launcher->cursor_pos < 0) launcher->cursor_pos = 0;
+
+        if (launcher->cursor_pos > launcher->query_length)
+            launcher->cursor_pos = launcher->query_length - 1;
+    } else {
+        launcher->cursor_pos = 0;
+    }
+
+    // print the cursor position
+    // if (launcher->cursor_pos != previous_cursor_pos) {
+    //     printf("Cursor position: %d\n", launcher->cursor_pos);
+    //     previous_cursor_pos = launcher->cursor_pos;
+    // }
 
 
 
@@ -171,7 +200,10 @@ void launcher_update(Launcher *launcher) {
 
     // cursor position
     float query_width = measure_text_length(launcher->window.font, launcher->query, 1.0f);
-    float cursor_x = query_x + query_width;
+    // float calculate_cursor_pos = launcher->cursor_pos == 0 ? 0 : launcher->cursor_pos + 1;
+    float calculate_cursor_pos = launcher->cursor_pos;
+    float cursor_x = query_x + 
+        launcher->single_letter_width*calculate_cursor_pos;
 
     draw_rectangle((RendererRectangle){
             .x = cursor_x,
