@@ -1,0 +1,53 @@
+Standard: Latest
+IndentWidth: 4
+TabWidth: 4
+UseTab: ForIndentation
+BreakBeforeBraces: Attach
+
+BraceWrapping:
+  SplitEmptyFunction: true
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: true
+  BeforeElse: false
+  BeforeCatch: false
+
+ColumnLimit: 80
+
+PointerAlignment: Right
+ReferenceAlignment: Pointer
+
+SpacesInParens: Never
+
+SpaceBeforeParens: ControlStatements
+
+AllowShortIfStatementsOnASingleLine: WithoutElse
+IndentCaseLabels: true
+IndentCaseBlocks: true
+IndentAccessModifiers: false
+AccessModifierOffset: -4
+ReflowComments: true
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 0
+MaxEmptyLinesToKeep: 6
+KeepEmptyLines:
+  AtStartOfFile: true
+  AtEndOfFile: true
+  AtStartOfBlock: true
+IncludeBlocks: Preserve
+SortIncludes:
+  Enabled: false
+  IgnoreCase: false
+IndentPPDirectives: None
+SkipMacroDefinitionBody: false
+BreakConstructorInitializers: BeforeColon
+PackConstructorInitializers: NextLine
+QualifierAlignment: Leave
+SpaceBeforeAssignmentOperators: true
+BinPackLongBracedList: false
+InsertTrailingCommas: None
+BreakStringLiterals: true
+InsertBraces: false
+
+InsertNewlineAtEOF: false
+

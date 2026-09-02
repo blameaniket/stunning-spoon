@@ -1,4 +1,3 @@
-
 @echo off
 setlocal
 
@@ -23,11 +22,25 @@ if errorlevel 1 (
 
 echo.
 echo ========================================
+echo   Formatting source
+echo ========================================
+echo.
+
+cmake --build build --target format
+
+if errorlevel 1 (
+    echo.
+    echo [ERROR] Formatting failed.
+    exit /b 1
+)
+
+echo.
+echo ========================================
 echo   Building stunning-spoon
 echo ========================================
 echo.
 
-cmake --build build --config Release
+cmake --build build --config Release --target app
 
 if errorlevel 1 (
     echo.
