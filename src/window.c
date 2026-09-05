@@ -12,18 +12,12 @@
 
 typedef struct WindowContext {
 	GLFWwindow *handle;
-	int window_height;
-	int window_width;
 } WindowContext;
 
 static WindowContext g_win_ctx = {0};
 
 
-
 void init_window(int width, int height, const char *window_title) {
-	g_win_ctx.window_width = width;
-	g_win_ctx.window_height = height;
-
 	if (!glfwInit()) {
 		log_error("failed to initialize glfw\n");
 		exit(EXIT_FAILURE);
@@ -34,8 +28,7 @@ void init_window(int width, int height, const char *window_title) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // for raylib floating window
 
-	g_win_ctx.handle =
-	    glfwCreateWindow(width, height, window_title, NULL, NULL);
+	g_win_ctx.handle = glfwCreateWindow(width, height, window_title, NULL, NULL);
 	if (!g_win_ctx.handle) {
 		log_error("failed to create glfw window\n");
 		glfwTerminate();
