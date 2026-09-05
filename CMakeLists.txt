@@ -10,6 +10,7 @@ add_executable(app
     src/main.c
     src/launcher.c
     src/window.c
+    src/log.c
     external/glad/src/glad.c
 )
 
@@ -64,6 +65,7 @@ set(FORMAT_SOURCES
     ${CMAKE_SOURCE_DIR}/src/main.c
     ${CMAKE_SOURCE_DIR}/src/launcher.c
     ${CMAKE_SOURCE_DIR}/src/window.c
+    ${CMAKE_SOURCE_DIR}/src/log.c
 )
 
 add_custom_target(format
