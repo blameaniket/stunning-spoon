@@ -14,5 +14,5 @@ void window_poll_events();
 
 
 
-#endif
+#endif // WINDOW_H
 

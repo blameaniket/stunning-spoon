@@ -10,6 +10,8 @@ add_executable(app
     src/main.c
     src/launcher.c
     src/window.c
+    src/renderer.c
+    src/color.c
     src/log.c
     external/glad/src/glad.c
 )
@@ -42,6 +44,7 @@ endif()
 if(WIN32)
     target_link_libraries(app PRIVATE
         Psapi
+        dwmapi
     )
 endif()
 
@@ -65,6 +68,8 @@ set(FORMAT_SOURCES
     ${CMAKE_SOURCE_DIR}/src/main.c
     ${CMAKE_SOURCE_DIR}/src/launcher.c
     ${CMAKE_SOURCE_DIR}/src/window.c
+    ${CMAKE_SOURCE_DIR}/src/renderer.c
+    ${CMAKE_SOURCE_DIR}/src/color.c
     ${CMAKE_SOURCE_DIR}/src/log.c
 )
 
