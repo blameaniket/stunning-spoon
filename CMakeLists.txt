@@ -10,11 +10,6 @@ add_executable(app
     src/main.c
     src/launcher.c
     src/window.c
-    src/renderer.c
-    src/match.c
-    src/log.c
-    src/color.c
-    src/config.c
     external/glad/src/glad.c
 )
 
@@ -69,11 +64,6 @@ set(FORMAT_SOURCES
     ${CMAKE_SOURCE_DIR}/src/main.c
     ${CMAKE_SOURCE_DIR}/src/launcher.c
     ${CMAKE_SOURCE_DIR}/src/window.c
-    ${CMAKE_SOURCE_DIR}/src/renderer.c
-    ${CMAKE_SOURCE_DIR}/src/match.c
-    ${CMAKE_SOURCE_DIR}/src/log.c
-    ${CMAKE_SOURCE_DIR}/src/color.c
-    ${CMAKE_SOURCE_DIR}/src/config.c
 )
 
 add_custom_target(format
