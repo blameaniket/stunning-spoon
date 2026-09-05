@@ -13,6 +13,5 @@ void window_swap_buffers();
 void window_poll_events();
 
 
-
 #endif // WINDOW_H
 

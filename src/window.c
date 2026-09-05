@@ -34,8 +34,6 @@ static void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "[GLFW ERROR %d] %s\n", error, description);
 }
 
-// initialize a glfw window
-// parameters: width, height, window_title
 void init_window(int width, int height, const char *window_title) {
     glfwSetErrorCallback(glfw_error_callback);
 
@@ -69,8 +67,9 @@ void init_window(int width, int height, const char *window_title) {
 #endif
 
     {
-        // center window
-        // first get total monitors
+        /* center window
+         * first, get total monitors
+         */
         int monitor_count = 0;
         GLFWmonitor **monitors = glfwGetMonitors(&monitor_count);
         if (monitor_count == 0) {
@@ -78,13 +77,13 @@ void init_window(int width, int height, const char *window_title) {
             exit(EXIT_FAILURE);
         }
 
-        // now get monitor info
+        /* now get current monitor info */
         GLFWmonitor *monitor = glfwGetPrimaryMonitor();
         int monitor_x, monitor_y;
         int monitor_width, monitor_height;
         glfwGetMonitorWorkarea(monitor, &monitor_x, &monitor_y, &monitor_width, &monitor_height);
 
-        // set the position here
+        /* set the position here */
         int x = monitor_x + (monitor_width - width) / 2;
         int y = monitor_y + (monitor_height - height) / 2;
         glfwSetWindowPos(g_win_ctx.handle, x, y);
