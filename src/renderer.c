@@ -257,8 +257,10 @@ void draw_text(Font font, const char *text, Vector2 position, float scale, Color
 	glUseProgram(g_renderer_ctx.text_shader);
 	update_viewport_and_projection(g_renderer_ctx.text_proj_loc);
 
-	glUniform4f(g_renderer_ctx.text_color_loc, text_color.r, text_color.g,
-	            text_color.b, text_color.alpha);
+	glUniform4f(
+            g_renderer_ctx.text_color_loc, 
+            text_color.r, text_color.g, text_color.b, 
+            text_color.alpha);
 
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(g_renderer_ctx.text_sampler_loc, 0);

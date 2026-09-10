@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 #include "launcher.h"
-
 #include "window.h"
 #include "renderer.h"
 #include "color.h"
@@ -11,26 +10,22 @@
 
 static LauncherContext launcher = {0};
 
-static void launcher_update(void);
+static void launcher_update();
 
-LauncherContext *launcher_get_context(void)
-{
+LauncherContext *launcher_get_context() {
     return &launcher;
 }
 
-void clear_screen(void)
-{
+void clear_screen() {
     clear_color(launcher.background_color);
 }
 
-void launcher_run(void)
-{
+void launcher_run() {
     init_window();
     renderer_init();
 
     int font_size = 20;
     launcher.font = load_font("assets/fonts/IosevkaTermSlab_nerdfont/IosevkaTermSlabNerdFont-Regular.ttf", font_size);
-
     launcher.background_color = hex_to_rgb("#111111");
     launcher.foreground_color = hex_to_rgb("#ffffff");
 
@@ -57,7 +52,7 @@ void launcher_run(void)
     close_window();
 }
 
-static void launcher_update(void) {
+static void launcher_update() {
     window_poll_events();
 
     if (window_should_close()) {
