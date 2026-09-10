@@ -66,29 +66,21 @@ void init_window(int width, int height, const char *window_title) {
     );
 #endif
 
-    {
-        /* center window
-         * first, get total monitors
-         */
-        int monitor_count = 0;
-        GLFWmonitor **monitors = glfwGetMonitors(&monitor_count);
-        if (monitor_count == 0) {
-            log_error("could not find any monitor holy fk buy a monitor dude\n");
-            exit(EXIT_FAILURE);
-        }
-
-        /* now get current monitor info */
-        GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-        int monitor_x, monitor_y;
-        int monitor_width, monitor_height;
-        glfwGetMonitorWorkarea(monitor, &monitor_x, &monitor_y, &monitor_width, &monitor_height);
-
-        /* set the position here */
-        int x = monitor_x + (monitor_width - width) / 2;
-        int y = monitor_y + (monitor_height - height) / 2;
-        glfwSetWindowPos(g_win_ctx.handle, x, y);
-
+    int monitor_count = 0;
+    GLFWmonitor **monitors = glfwGetMonitors(&monitor_count);
+    if (monitor_count == 0) {
+        log_error("could not find any monitor holy fk buy a monitor dude\n");
+        exit(EXIT_FAILURE);
     }
+
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    int monitor_x, monitor_y;
+    int monitor_width, monitor_height;
+    glfwGetMonitorWorkarea(monitor, &monitor_x, &monitor_y, &monitor_width, &monitor_height);
+
+    int x = monitor_x + (monitor_width - width) / 2;
+    int y = monitor_y + (monitor_height - height) / 2;
+    glfwSetWindowPos(g_win_ctx.handle, x, y);
 
     glfwMakeContextCurrent(g_win_ctx.handle);
     glfwSwapInterval(1); // Enable V-Sync by default
