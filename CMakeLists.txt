@@ -60,21 +60,3 @@ if(MSVC)
     )
 endif()
 
-
-# Format source files with clang-format.
-find_program(CLANG_FORMAT clang-format REQUIRED)
-
-set(FORMAT_SOURCES
-    ${CMAKE_SOURCE_DIR}/src/main.c
-    ${CMAKE_SOURCE_DIR}/src/launcher.c
-    ${CMAKE_SOURCE_DIR}/src/window.c
-    ${CMAKE_SOURCE_DIR}/src/renderer.c
-    ${CMAKE_SOURCE_DIR}/src/color.c
-    ${CMAKE_SOURCE_DIR}/src/log.c
-)
-
-add_custom_target(format
-    COMMAND ${CLANG_FORMAT} -i ${FORMAT_SOURCES}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Formatting C source files with clang-format"
-)
