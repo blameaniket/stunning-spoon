@@ -89,13 +89,44 @@ static GLuint create_program(const char *vs, const char *fs) {
 	return program;
 }
 
-void clear_color(Color color) {
-    glClearColor(color.r, color.g, color.b, color.alpha);
-    glClear(GL_COLOR_BUFFER_BIT);
+
+static void get_ortho_projection(float left, float right, float bottom, float top, float near_val, float far_val, float *mat) {
+	for (int i = 0; i < 16; i++) {
+		mat[i] = 0.0f;
+	}
+	mat[0] = 2.0f / (right - left);
+	mat[5] = 2.0f / (top - bottom);
+	mat[10] = -2.0f / (far_val - near_val);
+	mat[12] = -(right + left) / (right - left);
+	mat[13] = -(top + bottom) / (top - bottom);
+	mat[14] = -(far_val + near_val) / (far_val - near_val);
+	mat[15] = 1.0f;
+}
+
+static void update_viewport_and_projection(GLint proj_loc) {
+	int w = 800;
+	int h = 600;
+	GLFWwindow *win = get_current_window();
+	if (win) {
+		glfwGetFramebufferSize(win, &w, &h);
+	}
+	if (w <= 0) w = 1;
+	if (h <= 0) h = 1;
+
+	glViewport(0, 0, w, h);
+
+	float proj[16];
+	get_ortho_projection(0.0f, (float)w, (float)h, 0.0f, -1.0f, 1.0f, proj);
+	glUniformMatrix4fv(proj_loc, 1, GL_FALSE, proj);
 }
 
 
 void renderer_init() {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
 	g_renderer_ctx.text_shader = create_program(text_vs_source, text_fs_source);
 	g_renderer_ctx.text_proj_loc = glGetUniformLocation(g_renderer_ctx.text_shader, "projection");
 	g_renderer_ctx.text_color_loc = glGetUniformLocation(g_renderer_ctx.text_shader, "textColor");
@@ -126,6 +157,13 @@ void renderer_init() {
 
 }
 
+
+void clear_color(Color color) {
+    glClearColor(color.r, color.g, color.b, color.alpha);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+
 void renderer_shutdown() {
     if (g_renderer_ctx.text_vao) {
 		glDeleteVertexArrays(1, &g_renderer_ctx.text_vao);
@@ -140,17 +178,145 @@ void renderer_shutdown() {
 }
 
 Font load_font(const char *file_path, unsigned int font_size) {
-    Font font = {0};
-    font.size = font_size;
+	Font font = {0};
+	font.size = font_size;
 
+	if (!g_renderer_ctx.ft_initialized) {
+		if (FT_Init_FreeType(&g_renderer_ctx.ft_lib)) {
+			log_error(
+			    "FreeType not initialized and failed to init on font load\n");
+			return font;
+		}
+		g_renderer_ctx.ft_initialized = true;
+	}
 
-    return font;
+	FT_Face face;
+	if (FT_New_Face(g_renderer_ctx.ft_lib, file_path, 0, &face)) {
+		log_error("Failed to load font from: %s\n", file_path);
+		return font;
+	}
+
+	FT_Set_Pixel_Sizes(face, 0, font_size);
+
+	font.ascent = (int)(face->size->metrics.ascender >> 6);
+	font.descent = (int)(face->size->metrics.descender >> 6);
+	font.line_height = (int)(face->size->metrics.height >> 6);
+	if (font.ascent == 0) font.ascent = (int)font_size;
+	if (font.line_height == 0) font.line_height = (int)(font_size * 1.2f);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	for (unsigned char c = 0; c < 128; c++) {
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+			log_warning("Failed to load glyph for '%c' (%u)\n",
+			            (c >= 32 && c <= 126) ? c : '?', c);
+			continue;
+		}
+
+		GLuint texture = 0;
+		if (face->glyph->bitmap.width > 0 && face->glyph->bitmap.rows > 0) {
+			glGenTextures(1, &texture);
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width,
+			             face->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE,
+			             face->glyph->bitmap.buffer);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		font.glyphs[c].texture_id = texture;
+		font.glyphs[c].width = face->glyph->bitmap.width;
+		font.glyphs[c].height = face->glyph->bitmap.rows;
+		font.glyphs[c].bearing_x = face->glyph->bitmap_left;
+		font.glyphs[c].bearing_y = face->glyph->bitmap_top;
+		font.glyphs[c].advance = face->glyph->advance.x;
+	}
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+	FT_Done_Face(face);
+	font.loaded = true;
+	return font;
 }
 
 void unload_font(Font font) {
+	for (int i = 0; i < 128; i++) {
+		if (font.glyphs[i].texture_id != 0) {
+			glDeleteTextures(1, &font.glyphs[i].texture_id);
+		}
+	}
 }
 
 void draw_text(Font font, const char *text, Vector2 position, float scale, Color text_color) {
+	if (!text || !font.loaded) return;
+
+	glUseProgram(g_renderer_ctx.text_shader);
+	update_viewport_and_projection(g_renderer_ctx.text_proj_loc);
+
+	glUniform4f(g_renderer_ctx.text_color_loc, text_color.r, text_color.g,
+	            text_color.b, text_color.alpha);
+
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(g_renderer_ctx.text_sampler_loc, 0);
+
+	glBindVertexArray(g_renderer_ctx.text_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, g_renderer_ctx.text_vbo);
+
+	float x = position.x;
+	float y = position.y;
+
+	for (const char *p = text; *p; p++) {
+		unsigned char c = (unsigned char)*p;
+
+		if (c == '\n') {
+			x = position.x;
+			y += (font.line_height > 0 ? font.line_height : (int)font.size) *
+			     scale;
+			continue;
+		}
+
+		if (c == '\t') {
+			unsigned int space_adv = font.glyphs[' '].advance
+			                             ? font.glyphs[' '].advance
+			                             : (font.size << 6) / 2;
+			x += ((space_adv >> 6) * 4) * scale;
+			continue;
+		}
+
+		if (c >= 128) continue;
+
+		Glyph ch = font.glyphs[c];
+
+		float xpos = x + ch.bearing_x * scale;
+		float ypos = y + (font.ascent - ch.bearing_y) * scale;
+		float w = ch.width * scale;
+		float h = ch.height * scale;
+
+		if (ch.texture_id != 0 && w > 0.0f && h > 0.0f) {
+			float vertices[6][4] = {{xpos, ypos, 0.0f, 0.0f},
+			                        {xpos, ypos + h, 0.0f, 1.0f},
+			                        {xpos + w, ypos + h, 1.0f, 1.0f},
+
+			                        {xpos, ypos, 0.0f, 0.0f},
+			                        {xpos + w, ypos + h, 1.0f, 1.0f},
+			                        {xpos + w, ypos, 1.0f, 0.0f}};
+
+			glBindTexture(GL_TEXTURE_2D, ch.texture_id);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+
+		x += (ch.advance >> 6) * scale;
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glUseProgram(0);
 }
 
 
