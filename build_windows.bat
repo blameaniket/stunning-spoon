@@ -1,15 +1,36 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: 1. Detect vcpkg executable location
-for /f "delims=" %%I in ('where vcpkg 2^>nul') do (
-    set "VCPKG_EXE=%%I"
-)
+:: ============================================================
+:: 1. Locate vcpkg.cmake toolchain
+:: ============================================================
 
-if not defined VCPKG_EXE (
-    echo [ERROR] vcpkg executable not found in PATH! Run setup_cmdline_windows.bat first.
+:: Visual Studio 2026 Community bundled vcpkg
+set "VS_VCPKG_TOOLCHAIN=C:\Program Files\Microsoft Visual Studio\18\Community\VC\vcpkg\scripts\buildsystems\vcpkg.cmake"
+
+if exist "%VS_VCPKG_TOOLCHAIN%" (
+    set "TOOLCHAIN_FILE=%VS_VCPKG_TOOLCHAIN%"
+    echo [INFO] Found Visual Studio vcpkg toolchain:
+    echo        %TOOLCHAIN_FILE%
+) else (
+    :: Try to find standalone vcpkg through PATH
+    for /f "delims=" %%I in ('where.exe vcpkg 2^>nul') do (
+        set "VCPKG_EXE=%%I"
+        goto :vcpkg_found
+    )
+
+    echo [ERROR] vcpkg.cmake toolchain not found!
+    echo.
+    echo Expected:
+    echo %VS_VCPKG_TOOLCHAIN%
+    echo.
+    echo Make sure vcpkg is installed in Visual Studio Installer.
     exit /b 1
 )
+
+goto :toolchain_found
+
+:vcpkg_found
 
 :: Get folder containing vcpkg.exe
 for %%I in ("%VCPKG_EXE%") do set "VCPKG_DIR=%%~dpI"
@@ -17,7 +38,7 @@ for %%I in ("%VCPKG_EXE%") do set "VCPKG_DIR=%%~dpI"
 :: Strip trailing backslash
 if "%VCPKG_DIR:~-1%"=="\" set "VCPKG_DIR=%VCPKG_DIR:~0,-1%"
 
-:: Check for CMake toolchain in Visual Studio bundled location or standard root
+:: Check for toolchain relative to vcpkg.exe
 if exist "%VCPKG_DIR%\scripts\buildsystems\vcpkg.cmake" (
     set "TOOLCHAIN_FILE=%VCPKG_DIR%\scripts\buildsystems\vcpkg.cmake"
 ) else if exist "%VCPKG_DIR%\..\scripts\buildsystems\vcpkg.cmake" (
@@ -27,13 +48,24 @@ if exist "%VCPKG_DIR%\scripts\buildsystems\vcpkg.cmake" (
     exit /b 1
 )
 
-echo [INFO] Found vcpkg toolchain at: %TOOLCHAIN_FILE%
+:toolchain_found
 
+echo.
+echo [INFO] Using vcpkg toolchain:
+echo        %TOOLCHAIN_FILE%
+echo.
+
+:: ============================================================
 :: 2. Create build directory
+:: ============================================================
+
 if not exist build mkdir build
 cd build
 
-:: 3. Run CMake with detected toolchain
+:: ============================================================
+:: 3. Run CMake
+:: ============================================================
+
 cmake -G "NMake Makefiles" ^
     -DCMAKE_BUILD_TYPE=Debug ^
     -DCMAKE_TOOLCHAIN_FILE="%TOOLCHAIN_FILE%" ^
@@ -46,7 +78,10 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 
+:: ============================================================
 :: 4. Build with NMake
+:: ============================================================
+
 nmake
 
 if %errorlevel% neq 0 (
@@ -57,5 +92,6 @@ if %errorlevel% neq 0 (
 )
 
 cd ..
+
 echo.
 echo [SUCCESS] Build completed successfully!
