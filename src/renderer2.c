@@ -1,3 +1,4 @@
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -448,5 +449,4 @@ Vector2 measure_text(Font font, const char *text, float scale) {
 float measure_text_length(Font font, const char *text, float scale) {
 	return measure_text(font, text, scale).x;
 }
-
 

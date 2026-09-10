@@ -36,7 +36,7 @@ typedef struct {
 
 void renderer_init();
 void renderer_shutdown();
-void clear_screen(Color color);
+void clear_color(Color color);
 Font load_font(const char *file_path, unsigned int font_size);
 void unload_font(Font font);
 void draw_text(Font font, const char *text, Vector2 position, float scale, Color text_color);
