@@ -157,7 +157,7 @@ void init_window() {
             (LONG_PTR)launcher_wndproc
         );
 
-    if (!RegisterHotKey(hwnd, 1, MOD_CONTROL, VK_SPACE)) {
+    if (!RegisterHotKey(hwnd, 1, MOD_CONTROL, 'P')) {
         log_error("failed to register global hotkey\n");
     }
 
